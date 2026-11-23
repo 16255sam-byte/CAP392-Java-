@@ -1,0 +1,227 @@
+class Solution {
+public:
+    vector<string> fizzBuzz(int n) {
+        vector<string>ans;
+
+        for(int i = 1; i <=n; i ++){
+            if(i%3==0 && i%5 ==0){
+                ans.push_back("FizzBuzz");
+            }
+            else if(i%3==0){
+                ans.push_back("Fizz");
+        
+            }
+            else if(i%5==0){
+                ans.push_back("Buzz");
+            }
+            else{
+                ans.push_back(to_string(i));
+            }
+        }
+      return ans;  
+    }
+};
+
+
+class Solution {
+public:
+    int subtractProductAndSum(int n) {
+        int product = 1;
+        int sum = 0 ;
+
+        while(n>0){
+            int digit = n % 10 ;
+
+            product = product * digit;
+            sum = sum + digit ; 
+
+            n = n / 10;
+        }
+        return product - sum ;
+    }
+};
+
+
+
+
+class Solution {
+public:
+    vector
+    <int> runningSum(vector<int>& nums) {
+
+      for(int i = 1 ; i < nums.size(); i++){
+        nums[i] = nums[i] + nums[i-1];
+      }
+      return nums;    
+    }
+};
+
+
+
+class Solution {
+public:
+    int maximumWealth(vector<vector<int>>& accounts) {
+        int maxWealth = 0;
+
+        for(int i = 0; i <accounts.size(); i++){
+            int sum = 0;
+
+            for(int j = 0 ; j < accounts[i].size(); j++){
+                sum = sum + accounts[i][j];
+            }
+            maxWealth = max(maxWealth , sum);
+        }
+        return maxWealth;
+    }
+};
+
+
+class Solution {
+public:
+    int fib(int n) {
+        int a = 0 , b = 1;
+
+        for(int i = 0; i<n; i++){
+            int c = a+b;
+            a=b;
+            b=c;
+        }
+        return a;
+    }
+};
+
+
+
+class ParkingSystem {
+public:
+    int big , medium , small ;
+    ParkingSystem(int big, int medium, int small) {
+        this->big = big;
+        this->medium = medium;
+        this->small = small;
+
+    }
+
+    bool addCar(int carType){
+        if(carType == 1){
+            if(big>0){
+                big--;
+                return true;
+            }
+        }
+        else if(carType==2){
+            if(medium>0){
+                medium--;
+                return true;
+            }
+        }
+        else if(carType ==3){
+            if(small >0){
+                small--;
+                return true;
+            }
+        }
+   
+    return false;    
+    }
+};
+
+
+
+class MyQueue {
+public:
+stack<int> s1 ,s2;
+    MyQueue() {
+        
+    }
+    
+    void push(int x) {
+        s1.push(x);
+    }
+    
+    int pop() {
+        if(s2.empty()){
+            while(!s1.empty()){
+                s2.push(s1.top());
+                s1.pop();
+            }
+        }
+        int ans = s2.top();
+        s2.pop();
+        return ans;
+    }
+    
+    int peek() {
+       if(s2.empty()){
+        while(!s1.empty()){
+            s2.push(s1.top());
+            s1.pop();
+        }
+       }
+       return s2.top(); 
+    }
+    
+    bool empty() {
+       return s1.empty()&&s2.empty(); 
+    }
+};
+
+class Solution {
+public:
+    vector<int> twoSum(vector<int>& nums, int target) {
+    for(int i = 0 ; i <nums.size(); i++){
+        for(int j = i +1; j <nums.size(); j++){
+
+            if(nums[i] + nums[j] == target){
+                return {i,j};
+            }
+        }
+    }
+    return{};
+        
+    }
+};
+
+
+class Foo {
+public:
+mutex m ;
+condition_variable cv;
+int count = 0;
+    Foo() {
+        
+    }
+
+    void first(function<void()> printFirst) {
+        
+        unique_lock<mutex> lock(m);
+        printFirst();
+        count = 1;
+
+        cv.notify_all();
+    }
+
+    void second(function<void()> printSecond) {
+        
+         unique_lock<mutex> lock(m);
+         cv.wait(lock,[this]{
+            return count == 1;
+         });
+        printSecond();
+        count =2;
+
+        cv.notify_all();
+    }
+
+    void third(function<void()> printThird) {
+         unique_lock<mutex> lock(m);
+         cv.wait(lock,[this]{
+            return count ==2;
+         });
+      
+        printThird();
+    }
+};
+
+
+
