@@ -1,0 +1,82 @@
+class Solution {
+public:
+    int firstMissingPositive(vector<int>& nums) {
+      int n = nums.size();
+
+      for(int i = 0; i<n; i++){
+        while(nums[i] > 0 && nums[i] <=n && nums[nums[i]-1] != nums[i]){
+            swap(nums[i],nums[nums[i]-1]);
+        }
+      }  
+      for(int i =0 ; i <n; i++){
+        if(nums[i] != i+1){
+            return i+1;
+        }
+      }
+      return n+1;
+    }
+};
+
+
+class LFUCache {
+public:
+int capacity;
+int minFreq;
+
+unordered_map<int,pair<int,int>> cache;
+unordered_map<int, list<int>>freq;
+unordered_map<int ,list<int>::iterator>pos;
+    LFUCache(int capacity) {
+      this->capacity = capacity;
+      minFreq = 0;  
+    }
+    void update(int key){
+        int f = cache [key].second;
+
+        freq[f].erase(pos[key]);
+        if(freq[f].empty()&&minFreq ==f){
+            minFreq++;
+        }
+        cache[key].second++;
+
+        int newFreq = cache[key].second;
+
+        freq[newFreq].push_front(key);
+        pos[key]= freq[newFreq].begin();
+    }
+    
+    int get(int key) {
+       if(cache.find(key) == cache.end()) {
+            return -1; 
+    }
+    update(key);
+
+    return cache[key].first;
+    }
+    
+    void put(int key, int value) {
+       if(capacity == 0) return;
+
+        if(cache.find(key) != cache.end()) {
+            cache[key].first = value;
+            update(key);
+            return;
+        }
+
+        if(cache.size() == capacity) {
+            int oldKey = freq[minFreq].back();
+
+            freq[minFreq].pop_back();
+
+            cache.erase(oldKey);
+            pos.erase(oldKey);
+        }
+
+        cache[key] = {value, 1};
+
+        freq[1].push_front(key);
+        pos[key] = freq[1].begin();
+
+        minFreq = 1; 
+    }
+};
