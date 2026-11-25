@@ -1,82 +1,127 @@
 class Solution {
-public:
-    int firstMissingPositive(vector<int>& nums) {
-      int n = nums.size();
+    public int firstMissingPositive(int[] nums) {
 
-      for(int i = 0; i<n; i++){
-        while(nums[i] > 0 && nums[i] <=n && nums[nums[i]-1] != nums[i]){
-            swap(nums[i],nums[nums[i]-1]);
+        int n = nums.length;
+
+        
+        for (int i = 0; i < n; i++) {
+
+            while (nums[i] >= 1 && nums[i] <= n &&
+                   nums[nums[i] - 1] != nums[i]) {
+
+                int correctIndex = nums[i] - 1;
+
+                int temp = nums[i];
+                nums[i] = nums[correctIndex];
+                nums[correctIndex] = temp;
+            }
         }
-      }  
-      for(int i =0 ; i <n; i++){
-        if(nums[i] != i+1){
-            return i+1;
+
+        
+        for (int i = 0; i < n; i++) {
+
+            if (nums[i] != i + 1) {
+                return i + 1;
+            }
         }
-      }
-      return n+1;
+
+        
+        return n + 1;
     }
-};
+}
+
 
 
 class LFUCache {
-public:
-int capacity;
-int minFreq;
 
-unordered_map<int,pair<int,int>> cache;
-unordered_map<int, list<int>>freq;
-unordered_map<int ,list<int>::iterator>pos;
-    LFUCache(int capacity) {
-      this->capacity = capacity;
-      minFreq = 0;  
+    class Node {
+        int value;
+        int freq;
+
+        Node(int value) {
+            this.value = value;
+            this.freq = 1;
+        }
     }
-    void update(int key){
-        int f = cache [key].second;
 
-        freq[f].erase(pos[key]);
-        if(freq[f].empty()&&minFreq ==f){
+    int capacity;
+    int minFreq;
+
+    HashMap<Integer, Node> keyMap;
+    HashMap<Integer, LinkedHashSet<Integer>> freqMap;
+
+    public LFUCache(int capacity) {
+
+        this.capacity = capacity;
+        this.minFreq = 0;
+
+        keyMap = new HashMap<>();
+        freqMap = new HashMap<>();
+    }
+
+    public int get(int key) {
+
+        if (!keyMap.containsKey(key)) {
+            return -1;
+        }
+
+        Node node = keyMap.get(key);
+
+        int oldFreq = node.freq;
+
+        freqMap.get(oldFreq).remove(key);
+
+        if (oldFreq == minFreq &&
+            freqMap.get(oldFreq).isEmpty()) {
+
             minFreq++;
         }
-        cache[key].second++;
 
-        int newFreq = cache[key].second;
+        node.freq++;
 
-        freq[newFreq].push_front(key);
-        pos[key]= freq[newFreq].begin();
+        freqMap.putIfAbsent(node.freq, new LinkedHashSet<>());
+
+        freqMap.get(node.freq).add(key);
+
+        return node.value;
     }
-    
-    int get(int key) {
-       if(cache.find(key) == cache.end()) {
-            return -1; 
-    }
-    update(key);
 
-    return cache[key].first;
-    }
-    
-    void put(int key, int value) {
-       if(capacity == 0) return;
+    public void put(int key, int value) {
 
-        if(cache.find(key) != cache.end()) {
-            cache[key].first = value;
-            update(key);
+        if (capacity == 0) {
             return;
         }
 
-        if(cache.size() == capacity) {
-            int oldKey = freq[minFreq].back();
+        if (keyMap.containsKey(key)) {
 
-            freq[minFreq].pop_back();
+            Node node = keyMap.get(key);
 
-            cache.erase(oldKey);
-            pos.erase(oldKey);
+            node.value = value;
+
+            get(key);
+
+            return;
         }
 
-        cache[key] = {value, 1};
+        if (keyMap.size() == capacity) {
 
-        freq[1].push_front(key);
-        pos[key] = freq[1].begin();
+            int evictKey = freqMap.get(minFreq)
+                                  .iterator()
+                                  .next();
 
-        minFreq = 1; 
+            freqMap.get(minFreq).remove(evictKey);
+
+            keyMap.remove(evictKey);
+        }
+
+        Node newNode = new Node(value);
+
+        keyMap.put(key, newNode);
+
+        freqMap.putIfAbsent(1, new LinkedHashSet<>());
+
+        freqMap.get(1).add(key);
+
+        minFreq = 1;
     }
-};
+}
